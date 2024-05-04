@@ -18,7 +18,7 @@
 #  If 11 would be returned, produce two new bits until valid
 #
 gen_byte:
-  # TODO
+  
   jr $ra
 
 # Arguments:
@@ -33,7 +33,24 @@ gen_byte:
 # Return value:
 #  Look at the field {eca} and use the associated random number generator to generate one bit.
 #  Put the computed bit into $v0
-#
+
 gen_bit:
-  # TODO
-  jr $ra
+
+#setting the seed
+
+    lw $t0 , 4($a0)
+    move $a1, $a0
+    li $v0 , 40
+    syscall
+    
+#generation of the random number
+  
+    li $a0, 0           
+    li $v0, 41          
+    syscall
+    
+    andi $v0 , $a0 , 1
+    jr $ra    
+  
+ 	
+ 	
