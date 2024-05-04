@@ -30,7 +30,7 @@ gen_byte:
     addi $sp, $sp , 4
     
  
-  
+  # grab the second random bit, do the magic of the hirarchy with bitwise ops
     addi $sp , $sp , -4
     sw $ra , 0($sp)
     jal gen_bit
