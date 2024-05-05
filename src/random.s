@@ -27,6 +27,7 @@ gen_byte:
     jal gen_bit
     move $t1 , $v0
 <<<<<<< HEAD
+<<<<<<< HEAD
  	
  	# get the second bit
 =======
@@ -38,6 +39,10 @@ gen_byte:
     addi $sp , $sp , -4
     sw $ra , 0($sp)
 >>>>>>> 1a4955ea11f3d958676df4485b78a0db09df6a36
+=======
+ 	
+ 	# get the second bit
+>>>>>>> 02eb43992270bd8441acc6608bcd5b7f5ad7960c
     jal gen_bit
     move $t2 , $v0
     # do the magic
