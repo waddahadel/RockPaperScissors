@@ -26,8 +26,18 @@ gen_byte:
     sw $ra , 0($sp)
     jal gen_bit
     move $t1 , $v0
+<<<<<<< HEAD
  	
  	# get the second bit
+=======
+    lw $ra , 0($sp)
+    addi $sp, $sp , 4
+    
+ 
+  # grab the second random bit, do the magic of the hirarchy with bitwise ops
+    addi $sp , $sp , -4
+    sw $ra , 0($sp)
+>>>>>>> 1a4955ea11f3d958676df4485b78a0db09df6a36
     jal gen_bit
     move $t2 , $v0
     # do the magic
