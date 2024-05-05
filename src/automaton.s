@@ -62,4 +62,8 @@ print_tape:
     syscall
     j loop
   terminate:
+<<<<<<< HEAD
    jr $ra
+=======
+   jr $ra
+>>>>>>> solvingerrors
