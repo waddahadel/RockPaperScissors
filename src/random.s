@@ -26,15 +26,11 @@ gen_byte:
     sw $ra , 0($sp)
     jal gen_bit
     move $t1 , $v0
-    lw $ra , 0($sp)
-    addi $sp, $sp , 4
-    
- 
-  
-    addi $sp , $sp , -4
-    sw $ra , 0($sp)
+ 	
+ 	# get the second bit
     jal gen_bit
     move $t2 , $v0
+    # do the magic
     and $t3 , $t1 ,$t2
     bnez $t3, gen_byte
     sll $v0 , $t1 ,1

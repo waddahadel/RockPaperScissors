@@ -1,4 +1,7 @@
 # vim:sw=2 syntax=asm
+.data
+     x : .asciiz "X"
+     underscore : .asciiz "_"
 .text
   .globl simulate_automaton, print_tape
 
@@ -34,5 +37,29 @@ simulate_automaton:
 #   Print:  
 #       __X_X_X_
 print_tape:
-  # TODO
-  jr $ra
+  # hold the value of the tape
+  lw $t1 , 4($a0)
+  # hold the length of the tape
+  lb $s0, 8($a0)
+  #looping and printing 
+  loop:
+    beqz $s0 , terminate #break the loop
+    sub $s0 , $s0 , 1 #to ensure termination
+    srlv $t2 , $t1 , $s0 #making our desired bit in the lsb position starting form left to right!
+    andi $t2 , $t2 , 1 #extract the lsb , which denotes if the cell is dead or alive!
+    beqz $t2 , printUnderscore
+    
+    
+  
+  printX:
+    la $a0 , x 
+    li $v0 , 4
+    syscall
+    j loop
+  printUnderscore:
+    la $a0 , underscore 
+    li $v0 , 4
+    syscall
+    j loop
+  terminate:
+   jr $ra
