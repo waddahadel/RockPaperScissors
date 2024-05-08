@@ -17,8 +17,47 @@
 #
 # Returns: Nothing, but updates the tape in memory location 4($a0)
 simulate_automaton:
-  # TODO
-  jr $ra
+  # Load necessary values from configuration
+  lw $t1, 4($a0)      # Load tape
+  lb $t2, 8($a0)      # Load tape_len
+  lb $t3, 9($a0)      # Load rule
+  
+  # Create a mask to extract neighborhoods
+  li $t4, 7           # Mask for 3 bits (111)
+  
+  # Create variables for current and next generation tapes
+  move $t5, $t1       # Current generation tape
+  move $t6, $zero     # Next generation tape
+  
+  # Loop through each cell in the tape
+  li $t0, 0           # Initialize counter
+  loop_simulate:
+    bge $t0, $t2, terminate_loop   # If reached tape_len, terminate
+    
+    # Extract the neighborhood
+    and $t7, $t1, $t4      # Extract 3 bits neighborhood
+    andi $t7, $t7, 7       # Ensure we only consider 3 bits
+    
+    # Apply rule to determine next state
+    andi $t8, $t3, 1       # Extract LSB of rule
+    srl $t3, $t3, 1        # Shift right to process next neighborhood
+    add $t0, $t0, 1        # Increment counter
+    
+    # Update next generation tape
+    sll $t6, $t6, 1        # Shift left to make space for next cell
+    or $t6, $t6, $t8       # Set the bit according to the rule
+    
+    # Move to next cell
+    srl $t1, $t1, 1        # Shift tape to the right
+    
+    # Repeat loop
+    j loop_simulate
+    
+  # Terminate loop
+  terminate_loop:
+    # Store next generation tape back to memory
+    sw $t6, 4($a0)
+    jr $ra
 
 # Print the tape of the cellular automaton
 # Arguments:
@@ -62,5 +101,9 @@ print_tape:
     syscall
     j loop
   terminate:
+  # Print newline character
+    li $v0, 11       # syscall 11 prints a character
+    li $a0, '\n'     # ASCII value for newline character
+    syscall
    jr $ra
 
