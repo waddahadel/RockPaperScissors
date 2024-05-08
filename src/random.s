@@ -1,6 +1,6 @@
 # vim:sw=2 syntax=asm
 .data
-
+    
 .text
   .globl gen_byte, gen_bit
 
