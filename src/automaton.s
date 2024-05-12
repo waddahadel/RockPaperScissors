@@ -109,7 +109,7 @@ simulate_automaton:
     	#store the result in the desired memory location.
     	
     	sw $t6 , 4($a0)
-    	li $t6 , 0
+    #	li $t6 , 0
     	#move $a0 , $t6
     	#li $v0 , 1
     	#syscall

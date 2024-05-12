@@ -58,14 +58,25 @@ gen_byte:
 
 gen_bit:
 
-   
+    # loud our necessary values..
+    
     
 #initialize the stack to keep us safe
-    addi $sp , $sp , -8
+    addi $sp , $sp , -16
     sw $a0 , 0($sp)
     sw $ra , 4($sp)
+    sw $s0 , 8($sp)
+    sw $s6 , 12($sp)
+     # loud our necessary values..
+     lw $s7 , 0($a0) # the eca
+     lb $s0 , 10($a0) # number of simulations (skip..)
+     lb $t3 , 11($a0) # this is just our column..
+     lb $t4 , 8($a0) # this is our tape's length
     
-    
+     subi $t4 , $t4 ,1 # for convenience with the indexing..
+     subu $s6 , $t4 ,$t3  # this is how much shift we need to obtain our bit.. 
+     
+     bnez $s7 , simulate
 #setting the seed
     
     lw $a1 , 4($a0)
@@ -78,12 +89,38 @@ gen_bit:
     li $v0, 41          
     syscall
     andi $v0 , $a0 , 1
+    
+    j terminate
+    
+    simulate: 
+          beqz $s0, extract_the_bit
+          subi $s0, $s0 ,1
+          jal  simulate_automaton # simulate the thing.
+          j simulate
+           
+           
+  
+           
+             
+     extract_the_bit:
+          lw $t1 , 4($a0) # load the new tape
+          srlv $t1 , $t1  $s6
+          andi $v0 , $t1 , 1
+    
+    
+    
+terminate:
     # release the stack and end things.
     lw $a0, 0($sp)
     lw $ra , 4($sp)
-    addi $sp, $sp , 8
-    
+    lw $s0 , 8($sp)
+    lw $s6 , 12($sp)
+    addi $sp, $sp , 16
     jr $ra    
+    
+# I will ad a whole new routine to keep the work tree clean.
+
+
   
  	
  	
