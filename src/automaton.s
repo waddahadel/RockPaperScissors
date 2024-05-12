@@ -17,18 +17,21 @@
 #
 # Returns: Nothing, but updates the tape in memory location 4($a0)
 simulate_automaton:
+    addi $sp , $sp , -8
+    sw $ra , 0($sp)
+    sw $s0 , 4($sp)
     # Load the arguments into registers
     lw $t1, 4($a0)       # Load tape (1 word)
     lb $t2, 8($a0)       # Load tape_len (1 byte)
     lb $t3, 9($a0)       # Load rule (1 byte)
 
     move $t6 , $zero # this is our new tape.
-    li $t4 , 0   #our counter
+    move $t4 , $zero   #our counter
     subi $t2 , $t2 , 1 # for convenience. 
     
     initial_loop:
     
-    	beq $t4 , 0 , handle_first_digit # we are handeling the first digit.
+    	beqz $t4 , handle_first_digit # we are handeling the first digit.
     	beq $t4 , $t2 , handle_last_digit # we are handeling the first digit.
     	# normal digits (middle digits handeling)
     	# first we will hendle intermediate results with $t5 , 
@@ -36,7 +39,9 @@ simulate_automaton:
     	# mask out the first three digits, if the digit indexed with their value in the rule is 1,
     	# then we mark one, 
     	# else we mark with zero.
-    	srlv $t5 , $t1 , $t4  # shifting to the right by the certain amount, store the intermediate result here.
+    	# how much should we shift? 
+    	sub $t7 , $t4 , 1
+    	srlv $t5 , $t1 , $t7  # shifting to the right by the certain amount, store the intermediate result here.
     	andi $t5 , 7 # getting the three first digits
     	#again we shift the rul by t5 bits to get the bit to compare with I will use t0 for this
     	
@@ -59,6 +64,7 @@ simulate_automaton:
          sll $t5 , $t5 , 1 #shift to the left to make space
          # to get the most significant bit, we shift right by the amount of t2
          srlv $t7 , $t1 , $t2 # its in t7
+         andi $t7 , $t7 , 1
          # or them
          or $t5 , $t5 , $t7 
          # do the check, increment the counter and go back. 
@@ -66,7 +72,7 @@ simulate_automaton:
     	
     	srlv $t0, $t3, $t5 # now we have it
     	
-    	andi $t0 , 1 # we extract it (it's the least significant bit) , note that we do the or directly, it's the first  bit !   
+    	andi $t0 ,$t0, 1 # we extract it (it's the least significant bit) , note that we do the or directly, it's the first  bit !   
         
         or $t6 , $t6 , $t0 # now just add it to that position in the new cell.
     	# increment our counter and go back again
@@ -81,7 +87,7 @@ simulate_automaton:
          # move by two to the left to make space!
          sll $t5 , $t5 , 2
          # we use our t4 to get the amount of shifts we need , t2 - 1
-         add $t4 , $t4, 1
+         subi $t4 , $t4, 1
          # shift to the right by that amount.
          srlv $t7 , $t1 , $t4
          # extract the two last digits
@@ -94,7 +100,7 @@ simulate_automaton:
     	
     	srlv $t0, $t3, $t5 # now we have it
     	
-    	andi $t0 , 1 # we extract it (it's the lease significant bit)
+    	andi $t0 ,$t0 ,  1 # we extract it (it's the lease significant bit)
     	# now whatever it's we just add it to that position of the tape! just a left shift, an or,and it's done.
     	# here it's the msb, 
     	sllv $t0 , $t0 , $t2 # adjust it
@@ -103,10 +109,16 @@ simulate_automaton:
     	#store the result in the desired memory location.
     	
     	sw $t6 , 4($a0)
+    	li $t6 , 0
+    	#move $a0 , $t6
+    	#li $v0 , 1
+    	#syscall
          
+         lw $ra , 0($sp)
+         lw $s0 , 4($sp)
+         addi $sp, $sp , 8
     
-    
-    	jr $ra
+    	 jr $ra
     
 
 # Print the tape of the cellular automaton
@@ -126,6 +138,9 @@ simulate_automaton:
 #   Print:  
 #       __X_X_X_
 print_tape:
+    addi $sp , $sp , -8
+    sw $ra , 0($sp)
+    sw $s0 , 4($sp)
   # hold the value of the tape
   lw $t1 , 4($a0)
   # hold the length of the tape
@@ -155,5 +170,9 @@ print_tape:
     li $v0, 11       # syscall 11 prints a character
     li $a0, '\n'     # ASCII value for newline character
     syscall
+    
+    lw $ra , 0($sp)
+    lw $s0 , 4($sp)
+    addi $sp, $sp , 8
    jr $ra
 

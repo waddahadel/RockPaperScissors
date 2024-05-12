@@ -57,10 +57,19 @@ gen_byte:
 #  Put the computed bit into $v0
 
 gen_bit:
+
+    # some counter (the skip number) and the columnth column, we also need the length!
+    lb $t7 , 8($a0) # length
+    lw $t0 , 0($a0) #eca!
+    lb $s4 , 10($a0) #skip!
+    lb $s5 , 11($a0) #column!
+    
 #initialize the stack to keep us safe
     addi $sp , $sp , -8
     sw $a0 , 0($sp)
     sw $ra , 4($sp)
+    
+    is_eca_not_zero:  bnez $t0 , eca_gen_bit
 #setting the seed
     
     lw $a1 , 4($a0)
@@ -72,9 +81,27 @@ gen_bit:
     li $a0, 0           
     li $v0, 41          
     syscall
-    
     andi $v0 , $a0 , 1
+    j terminate
     
+    eca_gen_bit: beqz $s4, basically_done
+    subi $s4 , $s4 , 1
+    jal simulate_automaton
+    j eca_gen_bit
+    
+    basically_done:
+    # we have a new tape, we shift to the right by length - column, get the lsb, that is it.
+    
+    # get the new tape, in t6
+    lw $t6 , 4($a0)
+    sub $t7 , $t7 , $s5
+    srlv $v0 , $t6 , $t7
+    andi $v0 , $v0 , 1 
+    
+    
+    
+    
+terminate:
     lw $a0, 0($sp)
     lw $ra , 4($sp)
     addi $sp, $sp , 8
