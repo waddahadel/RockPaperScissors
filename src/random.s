@@ -24,18 +24,23 @@ gen_byte:
    
     addi $sp , $sp , -4
     sw $ra , 0($sp)
+    
+    
+    
     jal gen_bit
-    move $t1 , $v0
- 	
- 	# get the second bit
+    move $a3 , $v0
+    
+    # get the second bit
     jal gen_bit
     move $t2 , $v0
     # do the magic
-    and $t3 , $t1 ,$t2
+    and $t3 , $a3 ,$t2
     bnez $t3, gen_byte
-    sll $v0 , $t1 ,1
+    sll $v0 , $a3 ,1
     or $v0 , $v0, $t2
+    
     lw $ra , 0($sp)
+
     addi $sp, $sp , 4
      
        
@@ -62,21 +67,22 @@ gen_bit:
     
     
 #initialize the stack to keep us safe
-    addi $sp , $sp , -16
+    addi $sp , $sp , -8
     sw $a0 , 0($sp)
     sw $ra , 4($sp)
-    sw $s0 , 8($sp)
-    sw $s6 , 12($sp)
-     # loud our necessary values..
-     lw $s7 , 0($a0) # the eca
-     lb $s0 , 10($a0) # number of simulations (skip..)
+    
+   
+ 
+           # loud our necessary values..
+     lw $t5 , 0($a0) # the eca
+     lb $s1 , 10($a0) # number of simulations (skip..)
      lb $t3 , 11($a0) # this is just our column..
      lb $t4 , 8($a0) # this is our tape's length
     
      subi $t4 , $t4 ,1 # for convenience with the indexing..
      subu $s6 , $t4 ,$t3  # this is how much shift we need to obtain our bit.. 
      
-     bnez $s7 , simulate
+     bnez $t5 , simulate
 #setting the seed
     
     lw $a1 , 4($a0)
@@ -93,8 +99,8 @@ gen_bit:
     j terminate
     
     simulate: 
-          beqz $s0, extract_the_bit
-          subi $s0, $s0 ,1
+          beqz $s1, extract_the_bit
+          subi $s1, $s1 ,1
           jal  simulate_automaton # simulate the thing.
           j simulate
            
@@ -104,21 +110,22 @@ gen_bit:
              
      extract_the_bit:
           lw $t1 , 4($a0) # load the new tape
-          srlv $t1 , $t1  $s6
-          andi $v0 , $t1 , 1
-    
+          srlv $t1 , $t1  ,$s6
+          andi $t1 , $t1 , 1
+          move $v0 , $t1
+          move $t1 , $zero 
+          
     
     
 terminate:
     # release the stack and end things.
     lw $a0, 0($sp)
     lw $ra , 4($sp)
-    lw $s0 , 8($sp)
-    lw $s6 , 12($sp)
-    addi $sp, $sp , 16
+    
+    
+    addi $sp, $sp , 8
     jr $ra    
     
-# I will ad a whole new routine to keep the work tree clean.
 
 
   
