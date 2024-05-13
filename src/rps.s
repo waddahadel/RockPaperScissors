@@ -23,17 +23,18 @@
 # Returns: Nothing, only print either character 'W', 'L', or 'T' to stdout
 play_game_once:
 
-    addi $sp , $sp , -4
+    addi $sp , $sp , -8
     sw $ra , 0($sp)
+    sw $s0 , 4($sp)
 
-    li $t0 , 0 # index at our array
+    li $s0 , 0 # index at our array
     li $s3, 2 # loop counter
 loop:
   beqz $s3, start_excecuting
   subi $s3 $s3 1
   jal gen_byte
-  sw $v0, playersArray($t0) #Store contents of the result in first position of array 
-  addi $t0, $t0, 4 #increment the index by 4
+  sw $v0, playersArray($s0) #Store contents of the result in first position of array 
+  addi $s0, $s0, 4 #increment the index by 4
   j loop
   
   
@@ -98,8 +99,9 @@ tie:
 terminate:
   li $v0 , 4
   syscall
-  
+    
     lw $ra , 0($sp)
-    addi $sp, $sp , 4
+    lw $s0 , 4($sp)
+    addi $sp, $sp , 8
   
   jr $ra
